@@ -2,7 +2,6 @@ import java.util.ArrayList;
 
 class CentralControl extends Thread {
     private ForestCell[][] forest;
-    private Sensor[][] sensors;
     public ArrayList<Message> messagesBuffer = new ArrayList<>();
     private boolean flag;
 
@@ -11,7 +10,6 @@ class CentralControl extends Thread {
             throw new Exception("Null Parameters");
         }
         this.forest = forest;
-        this.sensors = sensors;
         flag = true;
     }
     
