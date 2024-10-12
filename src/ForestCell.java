@@ -5,6 +5,10 @@ class ForestCell {
         this.state = state;
     }
 
+    public ForestCell() {
+        this.state = '-';
+    }
+
     public synchronized char getState() {
         return this.state;
     }

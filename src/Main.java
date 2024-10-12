@@ -1,5 +1,5 @@
 public class Main {
-    static final int NUM = 5;
+    static final int NUM = 30;
 
     public static void main(String[] args) {
         try {

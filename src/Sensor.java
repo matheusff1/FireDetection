@@ -112,7 +112,7 @@ class Sensor extends Thread {
             throw new RuntimeException("Failed to create message", e);
         }
 
-        System.out.println("NEW MESSAGE created: " + message.getMessage());
+        //System.out.println("NEW MESSAGE created: " + message.getMessage());
 
         if (isBorderNode) {
             synchronized (central.messagesBuffer) {
@@ -138,7 +138,7 @@ class Sensor extends Thread {
         System.out.println("Thread running at position (" + row + "," + column + ")");
         
         while (this.flag && !reportedFire) {
-            synchronized (forest[row][column]) {
+            synchronized (forest[this.row][this.column]) {
                 if (forest[this.row][this.column].getState() == '@') {
                     System.out.println("Sensor at (" + row + "," + column + ") detected fire!");
                     sendMessages();
