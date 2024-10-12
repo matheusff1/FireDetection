@@ -1,12 +1,12 @@
 import java.util.ArrayList;
 
 class CentralControl extends Thread {
-    private char[][] forest;
+    private ForestCell[][] forest;
     private Sensor[][] sensors;
     public ArrayList<Message> messagesBuffer = new ArrayList<>();
     private boolean flag;
 
-    public CentralControl(char[][] forest, Sensor[][] sensors) throws Exception {
+    public CentralControl(ForestCell[][] forest, Sensor[][] sensors) throws Exception {
         if (forest == null || sensors == null) {
             throw new Exception("Null Parameters");
         }
@@ -33,9 +33,9 @@ class CentralControl extends Thread {
             synchronized (messagesBuffer) {
                 if (!messagesBuffer.isEmpty()) {
                     for (Message m : messagesBuffer) {
-                        System.out.println(m.getMessage());
-                        synchronized (forest) {
-                            forest[m.getInFire().getRow()][m.getInFire().getColumn()] = '/';
+                        System.out.println("CENTRAL: "+m.getMessage());
+                        synchronized (forest[m.getInFire().getRow()][m.getInFire().getColumn()]) {
+                            forest[m.getInFire().getRow()][m.getInFire().getColumn()].setState('/');
                         }
                     }
                     messagesBuffer.clear();

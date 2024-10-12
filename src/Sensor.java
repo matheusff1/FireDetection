@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 
 class Sensor extends Thread {
-    private char[][] forest;
+    private ForestCell[][] forest;
     private Sensor[][] sensors;
     public ArrayList<Message> messagesBuffer;
     private int row, column;
@@ -11,7 +11,7 @@ class Sensor extends Thread {
     private boolean reportedFire;
     private CentralControl central;
 
-    public Sensor(char[][] forest, Sensor[][] sensors, CentralControl central) throws Exception {
+    public Sensor(ForestCell[][] forest, Sensor[][] sensors, CentralControl central) throws Exception {
         if (forest == null || sensors == null || central == null) {
             throw new Exception("Null Parameter");
         }
@@ -23,7 +23,6 @@ class Sensor extends Thread {
         this.messagesBuffer = new ArrayList<>();
         this.neighbours = new ArrayList<>();
         this.reportedFire = false;
-
     }
 
     private void defPos(Sensor[][] sensors) {
@@ -73,97 +72,88 @@ class Sensor extends Thread {
         return column;
     }
 
-private void handleMessages() {
-    for (int i = messagesBuffer.size() - 1; i >= 0; i--) {
-        Message incomingMessage = messagesBuffer.get(i);
+    private void handleMessages() {
+        for (int i = messagesBuffer.size() - 1; i >= 0; i--) {
+            Message incomingMessage = messagesBuffer.get(i);
 
-        boolean messageExistsInBuffer;
-        
-        synchronized (central.messagesBuffer) {
-            messageExistsInBuffer = central.isMessageInBuffer(incomingMessage);
-        }
+            boolean messageExistsInBuffer;
+            
+            synchronized (central.messagesBuffer) {
+                messageExistsInBuffer = central.isMessageInBuffer(incomingMessage);
+            }
 
-        if (!messageExistsInBuffer) {
-            if (isBorderNode) {
-                synchronized (central.messagesBuffer) {
-                    central.messagesBuffer.add(incomingMessage);
-                }
-            } else {
-                for (Sensor neighbour : neighbours) {
-                    synchronized (neighbour.messagesBuffer) {
-                        if(!neighbour.isMessageInBuffer(incomingMessage)){
-                        neighbour.messagesBuffer.add(incomingMessage);
+            if (!messageExistsInBuffer) {
+                if (isBorderNode) {
+                    synchronized (central.messagesBuffer) {
+                        central.messagesBuffer.add(incomingMessage);
                     }
+                } else {
+                    for (Sensor neighbour : neighbours) {
+                        synchronized (neighbour.messagesBuffer) {
+                            if (!neighbour.isMessageInBuffer(incomingMessage)) {
+                                neighbour.messagesBuffer.add(incomingMessage);
+                            }
+                        }
                     }
                 }
             }
+
+            messagesBuffer.remove(i);
         }
-
-        messagesBuffer.remove(i);
-    }
-}
-
-
-   private void sendMessages() {
-    String messageText = "(" + this.row + "," + this.column + ") is on fire";
-    Message message;
-
-    try {
-        message = new Message(this, this, messageText);
-    } catch (Exception e) {
-        throw new RuntimeException("Failed to create message", e);
     }
 
-    System.out.println("NEW MESSAGE created: " + message.getMessage());
+    private void sendMessages() {
+        String messageText = "(" + this.row + "," + this.column + ") is on fire";
+        Message message;
 
-
-
-
-    if (isBorderNode) {
-        synchronized (central.messagesBuffer) {
-        central.messagesBuffer.add(message);
+        try {
+            message = new Message(this, this, messageText);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create message", e);
         }
-    } 
-    else {
-        for (Sensor neighbour : neighbours) {
-            synchronized (neighbour.messagesBuffer) {
-                neighbour.messagesBuffer.add(message);
+
+        System.out.println("NEW MESSAGE created: " + message.getMessage());
+
+        if (isBorderNode) {
+            synchronized (central.messagesBuffer) {
+                central.messagesBuffer.add(message);
+            }
+        } else {
+            for (Sensor neighbour : neighbours) {
+                synchronized (neighbour.messagesBuffer) {
+                    neighbour.messagesBuffer.add(message);
+                }
             }
         }
     }
-
-    }
-
-
-
 
     public void end() {
         this.flag = false;
     }
 
-   public void run() {
-    defPos(sensors);
-    defNeighbours(sensors);
-    defIsBorderNode(row, column, sensors);
-    System.out.println("Thread running at position (" + row + "," + column + ")");
-    
-    while (this.flag && !reportedFire) {
-        synchronized (forest){
-        if (forest[this.row][this.column] == '@') {
-            System.out.println("Sensor at (" + row + "," + column + ") detected fire!");
-            sendMessages();
-            this.reportedFire =true;
-        }
-        if (!this.messagesBuffer.isEmpty()) {
-            handleMessages();
-        }
-    }
-    try {
-        Thread.sleep(10000); 
-    } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-        System.out.println("Sensor thread interrupted.");
+    public void run() {
+        defPos(sensors);
+        defNeighbours(sensors);
+        defIsBorderNode(row, column, sensors);
+        System.out.println("Thread running at position (" + row + "," + column + ")");
+        
+        while (this.flag && !reportedFire) {
+            synchronized (forest[row][column]) {
+                if (forest[this.row][this.column].getState() == '@') {
+                    System.out.println("Sensor at (" + row + "," + column + ") detected fire!");
+                    sendMessages();
+                    this.reportedFire = true;
+                }
+            }
+            if (!this.messagesBuffer.isEmpty()) {
+                handleMessages();
+            }
+            try {
+                Thread.sleep(10000); 
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                System.out.println("Sensor thread interrupted.");
             }
         }
-    }   
+    }
 }

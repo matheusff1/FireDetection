@@ -1,11 +1,11 @@
 import java.util.Random;
 
 class FireCreator extends Thread {
-    private char[][] matrix;
+    private ForestCell[][] matrix;
     private Random random;
     private boolean flag;
 
-    public FireCreator(char[][] matrix) {
+    public FireCreator(ForestCell[][] matrix) {
         this.matrix = matrix;
         this.random = new Random();
         this.flag = true;
@@ -20,9 +20,9 @@ class FireCreator extends Thread {
             int row = random.nextInt(matrix.length);
             int col = random.nextInt(matrix[0].length);
 
-            synchronized (matrix) {
-                if (matrix[row][col] == '-') {
-                    matrix[row][col] = '@';
+            synchronized (matrix[row][col]) {
+                if (matrix[row][col].getState() == '-') {
+                    matrix[row][col].setState('@');
                     System.out.println("Fire Creator: NEW FIRE AT [" + row + "][" + col + "] ->'@'");
                     Main.printMatrix(matrix);
                 }

@@ -3,14 +3,14 @@ public class Main {
 
     public static void main(String[] args) {
         try {
-            char[][] forestMatrix = new char[NUM][NUM];
+            ForestCell[][] forestMatrix = new ForestCell[NUM][NUM];
             Sensor[][] sensorMatrix = new Sensor[NUM][NUM];
             FireCreator fireCreator = new FireCreator(forestMatrix);
             CentralControl central = new CentralControl(forestMatrix, sensorMatrix);
 
             for (int i = 0; i < NUM; i++) {
                 for (int j = 0; j < NUM; j++) {
-                    forestMatrix[i][j] = '-';
+                    forestMatrix[i][j] = new ForestCell('-');
                     sensorMatrix[i][j] = new Sensor(forestMatrix, sensorMatrix, central);
                 }
             }
@@ -25,16 +25,15 @@ public class Main {
 
             fireCreator.start();
 
-
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
         }
     }
 
-    static void printMatrix(char[][] matrix) {
-        for (char[] row : matrix) {
-            for (char cell : row) {
-                System.out.print(cell + " ");
+    static void printMatrix(ForestCell[][] matrix) {
+        for (ForestCell[] row : matrix) {
+            for (ForestCell cell : row) {
+                System.out.print(cell.getState() + " ");
             }
             System.out.println();
         }
