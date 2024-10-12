@@ -15,7 +15,6 @@ class FireCreator extends Thread {
         this.flag = false;
     }
 
-    @Override
     public void run() {
         while (flag) {
             int row = random.nextInt(matrix.length);
@@ -24,7 +23,7 @@ class FireCreator extends Thread {
             synchronized (matrix) {
                 if (matrix[row][col] == '-') {
                     matrix[row][col] = '@';
-                    System.out.println("Fire Creator: NEW FIRE AT [" + row + "][" + col + "] para '@'");
+                    System.out.println("Fire Creator: NEW FIRE AT [" + row + "][" + col + "] ->'@'");
                     Main.printMatrix(matrix);
                 }
             }

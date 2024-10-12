@@ -1,7 +1,5 @@
-import java.util.ArrayList;
-
 public class Main {
-    static final int NUM = 30;
+    static final int NUM = 5;
 
     public static void main(String[] args) {
         try {
@@ -26,9 +24,6 @@ public class Main {
             }
 
             fireCreator.start();
-
-            printMatrix(forestMatrix);
-
 
 
         } catch (Exception e) {

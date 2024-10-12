@@ -14,6 +14,15 @@ class CentralControl extends Thread {
         this.sensors = sensors;
         flag = true;
     }
+    
+    public boolean isMessageInBuffer(Message message) {
+        for (Message m : messagesBuffer) {
+            if (m.getMessage().equals(message.getMessage())) {
+                return true; 
+            }
+        }
+        return false; 
+    }
 
     public void end() {
         this.flag = false;
@@ -29,7 +38,7 @@ class CentralControl extends Thread {
                             forest[m.getInFire().getRow()][m.getInFire().getColumn()] = '/';
                         }
                     }
-                    messagesBuffer.clear(); // Limpa a lista após processar mensagens
+                    messagesBuffer.clear();
                 }
             }
         }
